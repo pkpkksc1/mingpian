@@ -32,97 +32,38 @@ let selectedFile = null;
 
 async function fixImageRotation(file){
 
-    return new Promise((resolve)=>{
+    return new Promise((resolve,reject)=>{
 
-        EXIF.getData(file,function(){
+        loadImage(
+            file,
+            function(canvas){
 
-            const orientation =
-                EXIF.getTag(this,"Orientation") || 1;
-                console.log("Orientation =", orientation);
-
-            const img = new Image();
-
-            img.onload=()=>{
-
-                const canvas=document.createElement("canvas");
-                const ctx=canvas.getContext("2d");
-
-                let width=img.width;
-                let height=img.height;
-
-                if([5,6,7,8].includes(orientation)){
-                    canvas.width=height;
-                    canvas.height=width;
-                }else{
-                    canvas.width=width;
-                    canvas.height=height;
+                if(!canvas){
+                    resolve(file);
+                    return;
                 }
-
-                switch(orientation){
-
-                    case 2:
-                        ctx.translate(width,0);
-                        ctx.scale(-1,1);
-                        break;
-
-                    case 3:
-                        ctx.translate(width,height);
-                        ctx.rotate(Math.PI);
-                        break;
-
-                    case 4:
-                        ctx.translate(0,height);
-                        ctx.scale(1,-1);
-                        break;
-
-                    case 5:
-                        ctx.rotate(0.5*Math.PI);
-                        ctx.scale(1,-1);
-                        break;
-
-                    case 6:
-                    ctx.translate(height, 0);
-                    ctx.rotate(Math.PI / 2);
-                    break;
-
-                    case 7:
-                        ctx.rotate(0.5*Math.PI);
-                        ctx.translate(width,-height);
-                        ctx.scale(-1,1);
-                        break;
-
-                    case 8:
-                    ctx.translate(0, width);
-                    ctx.rotate(-Math.PI / 2);
-                    break;
-
-                }
-            
-                ctx.drawImage(img,0,0);
 
                 canvas.toBlob((blob)=>{
 
-                    const newFile=new File(
+                    resolve(new File(
                         [blob],
                         file.name,
-                        {
-                            type:"image/jpeg"
-                        }
-                    );
-
-                    resolve(newFile);
+                        {type:"image/jpeg"}
+                    ));
 
                 },"image/jpeg",0.95);
 
-            };
-
-            img.src=URL.createObjectURL(file);
-
-        });
+            },
+            {
+                canvas:true,
+                orientation:true
+            }
+        );
 
     });
 
 }
+
 //========================
 // Part 3
 // 업로드
