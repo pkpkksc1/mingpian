@@ -217,6 +217,10 @@ function bindDeleteEvents() {
 
         btn.onclick = () => {
 
+            e.stopPropagation();
+
+            alert("삭제 버튼 클릭");
+        
             selectedId = btn.dataset.id;
             selectedFile = btn.dataset.file;
 
