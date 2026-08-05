@@ -81,12 +81,9 @@ async function fixImageRotation(file){
                         break;
 
                     case 6:
-                        ctx.rotate(0.5*Math.PI);
-                        ctx.translate(0,-height);
-                        ctx.translate(canvas.width, 0);
-                        ctx.rotate(Math.PI / 2);
-
-                        break;
+                    ctx.translate(height, 0);
+                    ctx.rotate(Math.PI / 2);
+                    break;
 
                     case 7:
                         ctx.rotate(0.5*Math.PI);
@@ -95,12 +92,9 @@ async function fixImageRotation(file){
                         break;
 
                     case 8:
-                        ctx.rotate(-0.5*Math.PI);
-                        ctx.translate(-width,0);
-                        ctx.translate(0, canvas.height);
-                        ctx.rotate(-Math.PI / 2);
-
-                        break;
+                    ctx.translate(0, width);
+                    ctx.rotate(-Math.PI / 2);
+                    break;
 
                 }
             
