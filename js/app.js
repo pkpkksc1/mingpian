@@ -215,16 +215,14 @@ function bindDeleteEvents() {
 
     document.querySelectorAll(".delete-card-btn").forEach(btn => {
 
-        btn.onclick = () => {
+        btn.onclick = (e) => {
 
             e.stopPropagation();
 
-            alert("삭제 버튼 클릭");
-        
-            selectedId = btn.dataset.id;
-            selectedFile = btn.dataset.file;
+           selectedId = btn.dataset.id;
+           selectedFile = btn.dataset.file;
 
-            deleteModal.show();
+           deleteModal.show();
 
         };
 
