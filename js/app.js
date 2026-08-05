@@ -38,6 +38,7 @@ async function fixImageRotation(file){
 
             const orientation =
                 EXIF.getTag(this,"Orientation") || 1;
+                console.log("Orientation =", orientation);
 
             const img = new Image();
 

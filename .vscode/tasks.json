@@ -4,7 +4,7 @@
         {
             "label": "🚀 Publish",
             "type": "shell",
-            "command": "git add .; if ($?) { git commit -m 'Auto Update' }; if ($?) { git push origin main }",
+            "command": "git add .; git commit -m 'Auto Update'; if ($LASTEXITCODE -eq 0) { git push origin main }",
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
