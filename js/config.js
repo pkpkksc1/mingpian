@@ -1,4 +1,7 @@
-// TODO: 수정하세요
-const SUPABASE_URL="https://YOUR_PROJECT.supabase.co";
-const SUPABASE_KEY="YOUR_PUBLISHABLE_KEY";
-const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL = "https://eywfcniridmknkalpqhg.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1Nrof5VBbkAz-zesNg4V7Q_UOteW1d8";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
