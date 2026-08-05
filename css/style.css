@@ -1,5 +1,5 @@
 /* ===========================
-   MingPian v2.5.2
+   MingPian v2.7
 =========================== */
 
 body{
@@ -16,22 +16,24 @@ body{
 
 #cards .card{
 
+    position:relative;
+
     border:none;
     border-radius:14px;
 
     overflow:hidden;
 
-    box-shadow:0 5px 15px rgba(0,0,0,.12);
-
-    transition:.25s;
+    background:#fff;
 
     cursor:pointer;
 
-    background:#fff;
+    transition:.25s;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.12);
 
 }
 
-/* 마우스 */
+/* 카드 Hover */
 
 #cards .card:hover{
 
@@ -41,7 +43,7 @@ body{
 
 }
 
-/* 이미지 */
+/* 명함 이미지 */
 
 #cards img{
 
@@ -51,7 +53,7 @@ body{
 
     object-fit:contain;
 
-    background:white;
+    background:#fff;
 
     padding:6px;
 
@@ -61,20 +63,75 @@ body{
 
 @media(max-width:768px){
 
-#cards img{
+    #cards img{
 
-    height:300px;
+        height:300px;
+
+    }
 
 }
 
-}
-
-/* 모달 */
+/* 확대 모달 */
 
 #modalImage{
 
     max-height:90vh;
 
     width:auto;
+
+}
+
+/* ===========================
+   삭제 메뉴 버튼
+=========================== */
+
+.delete-card-btn{
+
+    position:absolute;
+
+    top:8px;
+    right:8px;
+
+    border:none;
+
+    background:transparent;
+
+    color:#888;
+
+    font-size:24px;
+
+    font-weight:600;
+
+    line-height:1;
+
+    padding:2px 6px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    z-index:100;
+
+}
+
+/* 마우스를 올렸을 때만 진하게 */
+
+.delete-card-btn:hover{
+
+    color:#222;
+
+}
+
+/* 카드에 마우스를 올렸을 때만 버튼 표시 */
+
+.delete-card-btn{
+
+    opacity:.35;
+
+}
+
+.card:hover .delete-card-btn{
+
+    opacity:1;
 
 }

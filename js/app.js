@@ -179,7 +179,13 @@ async function loadCards() {
     <div class="card shadow-sm position-relative">
 
         <button
-            class="btn btn-outline-danger btn-sm delete-card position-absolute"
+            class="delete-card-btn"
+            data-id="${card.id}"
+            title="삭제">
+
+            ⋮
+
+        </button>
             data-id="${card.id}"
             data-file="${card.image_file}"
             style="
