@@ -172,7 +172,7 @@ async function loadCards() {
 
         if (signedError) continue;
 
-        cards.innerHTML += `
+cards.innerHTML += `
 
 <div class="col-lg-4 col-md-6 col-12">
 
@@ -181,24 +181,10 @@ async function loadCards() {
         <button
             class="delete-card-btn"
             data-id="${card.id}"
+            data-file="${card.image_file}"
             title="삭제">
 
             ⋮
-
-        </button>
-            data-id="${card.id}"
-            data-file="${card.image_file}"
-            style="
-                top:8px;
-                right:8px;
-                width:32px;
-                height:32px;
-                padding:0;
-                border-radius:50%;
-                z-index:100;
-            ">
-
-            🗑
 
         </button>
 
