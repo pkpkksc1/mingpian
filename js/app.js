@@ -213,7 +213,7 @@ cards.innerHTML += `
 
 function bindDeleteEvents() {
 
-    document.querySelectorAll(".delete-card").forEach(btn => {
+    document.querySelectorAll(".delete-card-btn").forEach(btn => {
 
         btn.onclick = () => {
 
