@@ -83,6 +83,9 @@ async function fixImageRotation(file){
                     case 6:
                         ctx.rotate(0.5*Math.PI);
                         ctx.translate(0,-height);
+                        ctx.translate(canvas.width, 0);
+                        ctx.rotate(Math.PI / 2);
+
                         break;
 
                     case 7:
@@ -94,10 +97,13 @@ async function fixImageRotation(file){
                     case 8:
                         ctx.rotate(-0.5*Math.PI);
                         ctx.translate(-width,0);
+                        ctx.translate(0, canvas.height);
+                        ctx.rotate(-Math.PI / 2);
+
                         break;
 
                 }
-
+            
                 ctx.drawImage(img,0,0);
 
                 canvas.toBlob((blob)=>{
