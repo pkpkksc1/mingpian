@@ -122,7 +122,7 @@ cameraInput.onchange = async (e) => {
             .from("business_cards")
             .insert([
                 {
-                    image_file: fileName
+                    image_file: fileName,
                     created_date: createdDate
                 }
             ]);
