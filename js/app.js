@@ -1,4 +1,4 @@
-// MingPin v2.4
+// MingPin v2.4.1
 
 const uploadBtn=document.getElementById("uploadBtn");
 const cameraInput=document.getElementById("cameraInput");
@@ -18,15 +18,17 @@ cameraInput.onchange=async(e)=>{
  const fileName=`${Date.now()}.jpg`;
 
  const {error:uploadError}=await supabaseClient.storage
- .from("mingpin").upload(fileName,file);
+ .from("mingpin")
+ .upload(fileName,file);
 
  if(uploadError){
-  alert(uploadError.message);
+  alert("Storage 오류 : "+uploadError.message);
   return;
  }
 
  const {data:urlData}=supabaseClient.storage
- .from("mingpin").getPublicUrl(fileName);
+ .from("mingpin")
+ .getPublicUrl(fileName);
 
  const {error:dbError}=await supabaseClient
  .from("business_cards")
@@ -39,7 +41,7 @@ cameraInput.onchange=async(e)=>{
  }]);
 
  if(dbError){
-  alert(dbError.message);
+  alert("DB 오류 : "+dbError.message);
   return;
  }
 
@@ -49,31 +51,37 @@ cameraInput.onchange=async(e)=>{
 
 listBtn.onclick=async()=>{
 
- cards.innerHTML="불러오는 중...";
-
  const {data,error}=await supabaseClient
  .from("business_cards")
  .select("*")
  .order("id",{ascending:false});
 
  if(error){
-  cards.innerHTML=error.message;
+  cards.innerHTML="목록 오류 : "+error.message;
   return;
  }
 
  cards.innerHTML="";
 
  data.forEach(card=>{
+
   cards.innerHTML+=`
   <div class="card mt-3 shadow">
-   <img src="${card.image_url}" class="card-img-top">
+
+   <img src="${card.image_url}"
+    class="card-img-top"
+    style="max-height:400px;object-fit:contain;background:#eee;"
+    onerror="this.src='';this.alt='이미지 오류';">
+
    <div class="card-body">
     <h5>${card.company||"회사명 없음"}</h5>
     <p>📞 ${card.phone||"-"}</p>
     <p>📧 ${card.email||"-"}</p>
     <small>${new Date(card.created_at).toLocaleString()}</small>
    </div>
+
   </div>`;
+
  });
 
 };

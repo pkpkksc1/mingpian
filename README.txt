@@ -1,7 +1,10 @@
-MingPin v2.4 update
+MingPin v2.4.1 update
 
-변경 파일:
-- index.html : 명함 목록 버튼 id 추가
-- js/app.js : 명함 목록 조회 기능 추가
+목적:
+- Supabase Storage Public URL 처리 개선
+- 명함 목록 이미지 표시 개선
 
-기존 프로젝트에 덮어쓰기용입니다.
+적용:
+기존 프로젝트에 파일 덮어쓰기
+- index.html
+- js/app.js
