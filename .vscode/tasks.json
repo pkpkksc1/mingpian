@@ -2,43 +2,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Git Add",
-            "type": "process",
-            "command": "git",
-            "args": [
-                "add",
-                "."
-            ]
-        },
-        {
-            "label": "Git Commit",
-            "type": "process",
-            "command": "git",
-            "args": [
-                "commit",
-                "-m",
-                "Auto Update"
-            ]
-        },
-        {
-            "label": "Git Push",
-            "type": "process",
-            "command": "git",
-            "args": [
-                "push",
-                "origin",
-                "main"
-            ]
-        },
-        {
             "label": "🚀 Publish",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "Git Add",
-                "Git Commit",
-                "Git Push"
-            ],
-            "problemMatcher": []
+            "type": "shell",
+            "command": "git add .; if ($?) { git commit -m 'Auto Update' }; if ($?) { git push origin main }",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
         }
     ]
 }
