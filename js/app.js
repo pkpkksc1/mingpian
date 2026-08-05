@@ -1,9 +1,9 @@
 // ==========================================
-// MingPian v2.5.2
-// 기능
-// 1. 명함 업로드
-// 2. 명함 목록
-// 3. 사진 크게 보기
+// MingPian v2.5.3
+// 1. 자동회전(EXIF)
+// 2. 업로드
+// 3. 명함목록
+// 4. 사진 크게보기
 // ==========================================
 
 const uploadBtn = document.getElementById("uploadBtn");
@@ -18,44 +18,141 @@ const imageModal = new bootstrap.Modal(
 );
 
 //========================
+// 자동 회전
+//========================
+
+async function fixImageRotation(file){
+
+    return new Promise((resolve)=>{
+
+        EXIF.getData(file,function(){
+
+            const orientation =
+                EXIF.getTag(this,"Orientation") || 1;
+
+            const img = new Image();
+
+            img.onload=()=>{
+
+                const canvas=document.createElement("canvas");
+                const ctx=canvas.getContext("2d");
+
+                let width=img.width;
+                let height=img.height;
+
+                if([5,6,7,8].includes(orientation)){
+                    canvas.width=height;
+                    canvas.height=width;
+                }else{
+                    canvas.width=width;
+                    canvas.height=height;
+                }
+
+                switch(orientation){
+
+                    case 2:
+                        ctx.translate(width,0);
+                        ctx.scale(-1,1);
+                        break;
+
+                    case 3:
+                        ctx.translate(width,height);
+                        ctx.rotate(Math.PI);
+                        break;
+
+                    case 4:
+                        ctx.translate(0,height);
+                        ctx.scale(1,-1);
+                        break;
+
+                    case 5:
+                        ctx.rotate(0.5*Math.PI);
+                        ctx.scale(1,-1);
+                        break;
+
+                    case 6:
+                        ctx.rotate(0.5*Math.PI);
+                        ctx.translate(0,-height);
+                        break;
+
+                    case 7:
+                        ctx.rotate(0.5*Math.PI);
+                        ctx.translate(width,-height);
+                        ctx.scale(-1,1);
+                        break;
+
+                    case 8:
+                        ctx.rotate(-0.5*Math.PI);
+                        ctx.translate(-width,0);
+                        break;
+
+                }
+
+                ctx.drawImage(img,0,0);
+
+                canvas.toBlob((blob)=>{
+
+                    const newFile=new File(
+                        [blob],
+                        file.name,
+                        {
+                            type:"image/jpeg"
+                        }
+                    );
+
+                    resolve(newFile);
+
+                },"image/jpeg",0.95);
+
+            };
+
+            img.src=URL.createObjectURL(file);
+
+        });
+
+    });
+
+}
+
+//========================
 // 업로드
 //========================
 
-uploadBtn.onclick = () => cameraInput.click();
+uploadBtn.onclick=()=>cameraInput.click();
 
-cameraInput.onchange = async (e) => {
+cameraInput.onchange=async(e)=>{
 
-    const file = e.target.files[0];
+    const originalFile=e.target.files[0];
 
-    if (!file) return;
+    if(!originalFile) return;
 
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
+    const file=await fixImageRotation(originalFile);
 
-    const fileName = `${Date.now()}.jpg`;
+    preview.src=URL.createObjectURL(file);
+    preview.style.display="block";
 
-    // Storage 업로드
-    const { error: uploadError } =
+    const fileName=`${Date.now()}.jpg`;
+
+    const {error:uploadError}=
         await supabaseClient.storage
-            .from("mingpin")
-            .upload(fileName, file);
+        .from("mingpin")
+        .upload(fileName,file);
 
-    if (uploadError) {
+    if(uploadError){
         alert(uploadError.message);
         return;
     }
 
-    // DB 저장
-    const { error: dbError } =
+    const {error:dbError}=
         await supabaseClient
-            .from("business_cards")
-            .insert([
-                {
-                    image_file: fileName
-                }
-            ]);
+        .from("business_cards")
+        .insert([
+            {
+                image_file:fileName
+            }
+        ]);
 
-    if (dbError) {
+    if(dbError){
         alert(dbError.message);
         return;
     }
@@ -65,7 +162,6 @@ cameraInput.onchange = async (e) => {
     loadCards();
 
 };
-
 //========================
 // 명함 목록 버튼
 //========================
@@ -111,7 +207,7 @@ async function loadCards() {
         cards.innerHTML += `
         <div class="col-lg-4 col-md-6 col-12">
 
-            <div class="card">
+            <div class="card shadow-sm">
 
                 <img
                     src="${signedData.signedUrl}"
@@ -131,7 +227,7 @@ async function loadCards() {
 }
 
 //========================
-// 사진 클릭
+// 사진 크게 보기
 //========================
 
 function bindImageEvents() {
