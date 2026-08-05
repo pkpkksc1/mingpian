@@ -1,10 +1,14 @@
-// MingPian v2.5
+// MingPian v2.5.1
 
 const uploadBtn = document.getElementById("uploadBtn");
 const cameraInput = document.getElementById("cameraInput");
 const preview = document.getElementById("preview");
 const listBtn = document.getElementById("listBtn");
 const cards = document.getElementById("cards");
+
+//========================
+// 업로드
+//========================
 
 uploadBtn.onclick = () => cameraInput.click();
 
@@ -29,13 +33,15 @@ cameraInput.onchange = async (e) => {
         return;
     }
 
-    // DB에는 파일명만 저장
+    // DB 저장
     const { error: dbError } =
         await supabaseClient
             .from("business_cards")
-            .insert([{
-                image_file: fileName
-            }]);
+            .insert([
+                {
+                    image_file: fileName
+                }
+            ]);
 
     if (dbError) {
         alert(dbError.message);
@@ -43,11 +49,29 @@ cameraInput.onchange = async (e) => {
     }
 
     alert("명함 등록 완료!");
+
+    // 업로드 후 목록 자동 새로고침
+    loadCards();
+
 };
 
+//========================
+// 목록 버튼
+//========================
 
+listBtn.onclick = () => {
+    loadCards();
+};
 
-listBtn.onclick = async () => {
+//========================
+// 목록 불러오기
+//========================
+
+async function loadCards() {
+
+    cards.innerHTML = "";
+
+    cards.className = "row g-3 mt-3";
 
     const { data, error } =
         await supabaseClient
@@ -59,10 +83,6 @@ listBtn.onclick = async () => {
         alert(error.message);
         return;
     }
-
-    cards.innerHTML = "";
-
-    cards.className = "row g-3 mt-3";
 
     for (const card of data) {
 
@@ -79,19 +99,24 @@ listBtn.onclick = async () => {
         }
 
         cards.innerHTML += `
-        <div class="col-md-4">
+        <div class="col-lg-4 col-md-6 col-12">
 
-            <div class="card shadow">
+            <div class="card">
 
                 <img
                     src="${signedData.signedUrl}"
                     class="card-img-top"
-                    style="height:280px;object-fit:contain;background:#f8f8f8;">
+                    loading="lazy">
 
             </div>
 
         </div>
         `;
     }
+}
 
-};
+//========================
+// 시작하면 자동 목록
+//========================
+
+loadCards();
