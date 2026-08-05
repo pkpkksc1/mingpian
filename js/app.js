@@ -88,6 +88,15 @@ cameraInput.onchange = async (e) => {
 
     const fileName = `${Date.now()}.jpg`;
 
+    const today = new Date();
+
+    const createdDate =
+    today.getFullYear()
+    + "-"
+    + String(today.getMonth()+1).padStart(2,"0")
+    + "-"
+    + String(today.getDate()).padStart(2,"0");
+
     //----------------------------------
     // Storage 업로드
     //----------------------------------
@@ -114,6 +123,7 @@ cameraInput.onchange = async (e) => {
             .insert([
                 {
                     image_file: fileName
+                    created_date: createdDate
                 }
             ]);
 
@@ -193,6 +203,10 @@ cards.innerHTML += `
             class="card-img-top card-image"
             data-url="${signedData.signedUrl}"
             loading="lazy">
+        
+        <div class="text-center text-muted mt-2">
+
+       📅 ${card.created_date || ""}
 
     </div>
 
