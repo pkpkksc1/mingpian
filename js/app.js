@@ -231,32 +231,39 @@ async function loadCards() {
         if (signedError) continue;
 
         cards.innerHTML += `
+
 <div class="col-lg-4 col-md-6 col-12">
 
-<div class="card shadow-sm">
+    <div class="card shadow-sm position-relative">
 
-<img
-src="${signedData.signedUrl}"
-class="card-img-top card-image"
-data-url="${signedData.signedUrl}"
-loading="lazy">
+        <button
+            class="btn btn-outline-danger btn-sm delete-card position-absolute"
+            data-id="${card.id}"
+            data-file="${card.image_file}"
+            style="
+                top:8px;
+                right:8px;
+                width:32px;
+                height:32px;
+                padding:0;
+                border-radius:50%;
+                z-index:100;
+            ">
 
-<div class="card-body">
+            🗑
 
-<button
-class="btn btn-danger w-100 delete-card"
-data-id="${card.id}"
-data-file="${card.image_file}">
+        </button>
 
-🗑 삭제
+        <img
+            src="${signedData.signedUrl}"
+            class="card-img-top card-image"
+            data-url="${signedData.signedUrl}"
+            loading="lazy">
 
-</button>
+    </div>
 
 </div>
 
-</div>
-
-</div>
 `;
 
     }
