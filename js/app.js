@@ -1,10 +1,21 @@
-// MingPian v2.5.1
+// ==========================================
+// MingPian v2.5.2
+// 기능
+// 1. 명함 업로드
+// 2. 명함 목록
+// 3. 사진 크게 보기
+// ==========================================
 
 const uploadBtn = document.getElementById("uploadBtn");
 const cameraInput = document.getElementById("cameraInput");
 const preview = document.getElementById("preview");
 const listBtn = document.getElementById("listBtn");
 const cards = document.getElementById("cards");
+
+const modalImage = document.getElementById("modalImage");
+const imageModal = new bootstrap.Modal(
+    document.getElementById("imageModal")
+);
 
 //========================
 // 업로드
@@ -15,6 +26,7 @@ uploadBtn.onclick = () => cameraInput.click();
 cameraInput.onchange = async (e) => {
 
     const file = e.target.files[0];
+
     if (!file) return;
 
     preview.src = URL.createObjectURL(file);
@@ -50,17 +62,18 @@ cameraInput.onchange = async (e) => {
 
     alert("명함 등록 완료!");
 
-    // 업로드 후 목록 자동 새로고침
     loadCards();
 
 };
 
 //========================
-// 목록 버튼
+// 명함 목록 버튼
 //========================
 
 listBtn.onclick = () => {
+
     loadCards();
+
 };
 
 //========================
@@ -71,7 +84,7 @@ async function loadCards() {
 
     cards.innerHTML = "";
 
-    cards.className = "row g-3 mt-3";
+    cards.className = "row g-4";
 
     const { data, error } =
         await supabaseClient
@@ -93,10 +106,7 @@ async function loadCards() {
                 .from("mingpin")
                 .createSignedUrl(card.image_file, 3600);
 
-        if (signedError) {
-            console.log(signedError);
-            continue;
-        }
+        if (signedError) continue;
 
         cards.innerHTML += `
         <div class="col-lg-4 col-md-6 col-12">
@@ -105,18 +115,43 @@ async function loadCards() {
 
                 <img
                     src="${signedData.signedUrl}"
-                    class="card-img-top"
+                    class="card-img-top card-image"
+                    data-url="${signedData.signedUrl}"
                     loading="lazy">
 
             </div>
 
         </div>
         `;
+
     }
+
+    bindImageEvents();
+
 }
 
 //========================
-// 시작하면 자동 목록
+// 사진 클릭
+//========================
+
+function bindImageEvents() {
+
+    document.querySelectorAll(".card-image").forEach(img => {
+
+        img.onclick = () => {
+
+            modalImage.src = img.dataset.url;
+
+            imageModal.show();
+
+        };
+
+    });
+
+}
+
+//========================
+// 시작
 //========================
 
 loadCards();
