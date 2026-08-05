@@ -142,5 +142,62 @@ id="deleteBtn">
 <script src="js/app.js"></script>
 
 </body>
+<!-- ========================
+삭제 확인 Modal
+======================== -->
 
+<div class="modal fade" id="deleteModal" tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    명함 삭제
+                </h5>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body text-center">
+
+                정말 삭제하시겠습니까?
+
+                <br><br>
+
+                삭제 후에는 복구할 수 없습니다.
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    취소
+
+                </button>
+
+                <button
+                    id="deleteBtn"
+                    class="btn btn-danger">
+
+                    삭제
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 </html>

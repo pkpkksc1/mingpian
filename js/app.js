@@ -1,9 +1,6 @@
 // ==========================================
-// MingPian v2.5.3
-// 1. 자동회전(EXIF)
-// 2. 업로드
-// 3. 명함목록
-// 4. 사진 크게보기
+// MingPian v2.6
+// Part 1 : 전역변수
 // ==========================================
 
 const uploadBtn = document.getElementById("uploadBtn");
@@ -12,13 +9,25 @@ const preview = document.getElementById("preview");
 const listBtn = document.getElementById("listBtn");
 const cards = document.getElementById("cards");
 
+// 사진 보기
 const modalImage = document.getElementById("modalImage");
 const imageModal = new bootstrap.Modal(
     document.getElementById("imageModal")
 );
 
+// 삭제 모달
+const deleteModal = new bootstrap.Modal(
+    document.getElementById("deleteModal")
+);
+
+const deleteBtn = document.getElementById("deleteBtn");
+
+// 삭제할 데이터
+let selectedId = null;
+let selectedFile = null;
 //========================
-// 자동 회전
+// Part 2
+// 자동 회전(EXIF)
 //========================
 
 async function fixImageRotation(file){
@@ -113,57 +122,76 @@ async function fixImageRotation(file){
     });
 
 }
-
 //========================
+// Part 3
 // 업로드
 //========================
 
-uploadBtn.onclick=()=>cameraInput.click();
+uploadBtn.onclick = () => {
 
-cameraInput.onchange=async(e)=>{
+    cameraInput.click();
 
-    const originalFile=e.target.files[0];
+};
 
-    if(!originalFile) return;
+cameraInput.onchange = async (e) => {
 
-    const file=await fixImageRotation(originalFile);
+    const originalFile = e.target.files[0];
 
-    preview.src=URL.createObjectURL(file);
-    preview.style.display="block";
+    if (!originalFile) return;
 
-    const fileName=`${Date.now()}.jpg`;
+    const file = await fixImageRotation(originalFile);
 
-    const {error:uploadError}=
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+
+    const fileName = `${Date.now()}.jpg`;
+
+    //----------------------------------
+    // Storage 업로드
+    //----------------------------------
+
+    const { error: uploadError } =
         await supabaseClient.storage
-        .from("mingpin")
-        .upload(fileName,file);
+            .from("mingpin")
+            .upload(fileName, file);
 
-    if(uploadError){
+    if (uploadError) {
+
         alert(uploadError.message);
         return;
+
     }
 
-    const {error:dbError}=
-        await supabaseClient
-        .from("business_cards")
-        .insert([
-            {
-                image_file:fileName
-            }
-        ]);
+    //----------------------------------
+    // DB 저장
+    //----------------------------------
 
-    if(dbError){
+    const { error: dbError } =
+        await supabaseClient
+            .from("business_cards")
+            .insert([
+                {
+                    image_file: fileName
+                }
+            ]);
+
+    if (dbError) {
+
         alert(dbError.message);
         return;
+
     }
 
     alert("명함 등록 완료!");
+
+    cameraInput.value = "";
 
     loadCards();
 
 };
 //========================
-// 명함 목록 버튼
+// Part 4
+// 명함 목록
 //========================
 
 listBtn.onclick = () => {
@@ -171,10 +199,6 @@ listBtn.onclick = () => {
     loadCards();
 
 };
-
-//========================
-// 목록 불러오기
-//========================
 
 async function loadCards() {
 
@@ -189,8 +213,10 @@ async function loadCards() {
             .order("id", { ascending: false });
 
     if (error) {
+
         alert(error.message);
         return;
+
     }
 
     for (const card of data) {
@@ -205,29 +231,124 @@ async function loadCards() {
         if (signedError) continue;
 
         cards.innerHTML += `
-        <div class="col-lg-4 col-md-6 col-12">
+<div class="col-lg-4 col-md-6 col-12">
 
-            <div class="card shadow-sm">
+<div class="card shadow-sm">
 
-                <img
-                    src="${signedData.signedUrl}"
-                    class="card-img-top card-image"
-                    data-url="${signedData.signedUrl}"
-                    loading="lazy">
+<img
+src="${signedData.signedUrl}"
+class="card-img-top card-image"
+data-url="${signedData.signedUrl}"
+loading="lazy">
 
-            </div>
+<div class="card-body">
 
-        </div>
-        `;
+<button
+class="btn btn-danger w-100 delete-card"
+data-id="${card.id}"
+data-file="${card.image_file}">
+
+🗑 삭제
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+`;
 
     }
 
     bindImageEvents();
+    bindDeleteEvents();
+
+}
+//========================
+// Part 5
+// 삭제 기능
+//========================
+
+function bindDeleteEvents() {
+
+    document.querySelectorAll(".delete-card").forEach(btn => {
+
+        btn.onclick = () => {
+
+            selectedId = btn.dataset.id;
+            selectedFile = btn.dataset.file;
+
+            deleteModal.show();
+
+        };
+
+    });
 
 }
 
+deleteBtn.onclick = async () => {
+
+    if (!selectedId || !selectedFile) return;
+
+    deleteBtn.disabled = true;
+    deleteBtn.innerText = "삭제중...";
+
+    //------------------------------------------------
+    // Storage 삭제
+    //------------------------------------------------
+
+    const { error: storageError } =
+        await supabaseClient.storage
+            .from("mingpin")
+            .remove([selectedFile]);
+
+    if (storageError) {
+
+        deleteBtn.disabled = false;
+        deleteBtn.innerText = "삭제";
+
+        alert(storageError.message);
+
+        return;
+
+    }
+
+    //------------------------------------------------
+    // DB 삭제
+    //------------------------------------------------
+
+    const { error: dbError } =
+        await supabaseClient
+            .from("business_cards")
+            .delete()
+            .eq("id", selectedId);
+
+    if (dbError) {
+
+        deleteBtn.disabled = false;
+        deleteBtn.innerText = "삭제";
+
+        alert(dbError.message);
+
+        return;
+
+    }
+
+    deleteBtn.disabled = false;
+    deleteBtn.innerText = "삭제";
+
+    deleteModal.hide();
+
+    selectedId = null;
+    selectedFile = null;
+
+    loadCards();
+
+};
 //========================
-// 사진 크게 보기
+// Part 6
+// 사진 크게보기
 //========================
 
 function bindImageEvents() {
