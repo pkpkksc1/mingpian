@@ -20,22 +20,42 @@ cameraInput.addEventListener("change", async (event) => {
     const fileName = `${Date.now()}.jpg`;
 
     // Storage 업로드
-    const { data, error } = await supabaseClient.storage
+    const { error: uploadError } = await supabaseClient.storage
         .from("mingpin")
         .upload(fileName, file);
 
-    if (error) {
-        alert("업로드 실패");
-        console.error(error);
+    if (uploadError) {
+        console.error(uploadError);
+        alert("사진 업로드 실패");
         return;
     }
 
-    // Public URL 생성
+    // Public URL 가져오기
     const { data: urlData } = supabaseClient.storage
         .from("mingpin")
         .getPublicUrl(fileName);
 
-    console.log(urlData.publicUrl);
+    const imageUrl = urlData.publicUrl;
 
-    alert("업로드 완료!");
+    // DB 저장
+    const { error: dbError } = await supabaseClient
+        .from("business_cards")
+        .insert([
+            {
+                company: "",
+                phone: "",
+                email: "",
+                image_url: imageUrl,
+                memo: ""
+            }
+        ]);
+
+    if (dbError) {
+        console.error(dbError);
+        alert("DB 저장 실패");
+        return;
+    }
+
+    alert("명함 등록 완료!");
+
 });
