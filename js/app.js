@@ -1,87 +1,97 @@
-// MingPin v2.4.1
+// MingPian v2.5
 
-const uploadBtn=document.getElementById("uploadBtn");
-const cameraInput=document.getElementById("cameraInput");
-const preview=document.getElementById("preview");
-const listBtn=document.getElementById("listBtn");
-const cards=document.getElementById("cards");
+const uploadBtn = document.getElementById("uploadBtn");
+const cameraInput = document.getElementById("cameraInput");
+const preview = document.getElementById("preview");
+const listBtn = document.getElementById("listBtn");
+const cards = document.getElementById("cards");
 
-uploadBtn.onclick=()=>cameraInput.click();
+uploadBtn.onclick = () => cameraInput.click();
 
-cameraInput.onchange=async(e)=>{
- const file=e.target.files[0];
- if(!file)return;
+cameraInput.onchange = async (e) => {
 
- preview.src=URL.createObjectURL(file);
- preview.style.display="block";
+    const file = e.target.files[0];
+    if (!file) return;
 
- const fileName=`${Date.now()}.jpg`;
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
 
- const {error:uploadError}=await supabaseClient.storage
- .from("mingpin")
- .upload(fileName,file);
+    const fileName = `${Date.now()}.jpg`;
 
- if(uploadError){
-  alert("Storage 오류 : "+uploadError.message);
-  return;
- }
+    // Storage 업로드
+    const { error: uploadError } =
+        await supabaseClient.storage
+            .from("mingpin")
+            .upload(fileName, file);
 
- const {data:urlData}=supabaseClient.storage
- .from("mingpin")
- .getPublicUrl(fileName);
+    if (uploadError) {
+        alert(uploadError.message);
+        return;
+    }
 
- const {error:dbError}=await supabaseClient
- .from("business_cards")
- .insert([{
-  company:"",
-  phone:"",
-  email:"",
-  image_url:urlData.publicUrl,
-  memo:""
- }]);
+    // DB에는 파일명만 저장
+    const { error: dbError } =
+        await supabaseClient
+            .from("business_cards")
+            .insert([{
+                image_file: fileName
+            }]);
 
- if(dbError){
-  alert("DB 오류 : "+dbError.message);
-  return;
- }
+    if (dbError) {
+        alert(dbError.message);
+        return;
+    }
 
- alert("명함 등록 완료!");
+    alert("명함 등록 완료!");
 };
 
 
-listBtn.onclick=async()=>{
 
- const {data,error}=await supabaseClient
- .from("business_cards")
- .select("*")
- .order("id",{ascending:false});
+listBtn.onclick = async () => {
 
- if(error){
-  cards.innerHTML="목록 오류 : "+error.message;
-  return;
- }
+    const { data, error } =
+        await supabaseClient
+            .from("business_cards")
+            .select("*")
+            .order("id", { ascending: false });
 
- cards.innerHTML="";
+    if (error) {
+        alert(error.message);
+        return;
+    }
 
- data.forEach(card=>{
+    cards.innerHTML = "";
 
-  cards.innerHTML+=`
-  <div class="card mt-3 shadow">
+    cards.className = "row g-3 mt-3";
 
-   <img src="${card.image_url}"
-    class="card-img-top"
-    style="max-height:400px;object-fit:contain;background:#eee;"
-    onerror="this.src='';this.alt='이미지 오류';">
+    for (const card of data) {
 
-   <div class="card-body">
-    <h5>${card.company||"회사명 없음"}</h5>
-    <p>📞 ${card.phone||"-"}</p>
-    <p>📧 ${card.email||"-"}</p>
-    <small>${new Date(card.created_at).toLocaleString()}</small>
-   </div>
+        if (!card.image_file) continue;
 
-  </div>`;
+        const { data: signedData, error: signedError } =
+            await supabaseClient.storage
+                .from("mingpin")
+                .createSignedUrl(card.image_file, 3600);
 
- });
+        if (signedError) {
+            console.log(signedError);
+            continue;
+        }
+
+        cards.innerHTML += `
+        <div class="col-md-4">
+
+            <div class="card shadow">
+
+                <img
+                    src="${signedData.signedUrl}"
+                    class="card-img-top"
+                    style="height:280px;object-fit:contain;background:#f8f8f8;">
+
+            </div>
+
+        </div>
+        `;
+    }
 
 };
