@@ -6,16 +6,36 @@ uploadBtn.addEventListener("click", () => {
     cameraInput.click();
 });
 
-cameraInput.addEventListener("change", (event) => {
+cameraInput.addEventListener("change", async (event) => {
 
     const file = event.target.files[0];
 
     if (!file) return;
 
+    // 미리보기
     preview.src = URL.createObjectURL(file);
     preview.style.display = "block";
 
-    console.log("선택한 파일:", file.name);
-    console.log("파일 크기:", file.size);
+    // 파일명 생성
+    const fileName = `${Date.now()}.jpg`;
 
+    // Storage 업로드
+    const { data, error } = await supabaseClient.storage
+        .from("mingpin")
+        .upload(fileName, file);
+
+    if (error) {
+        alert("업로드 실패");
+        console.error(error);
+        return;
+    }
+
+    // Public URL 생성
+    const { data: urlData } = supabaseClient.storage
+        .from("mingpin")
+        .getPublicUrl(fileName);
+
+    console.log(urlData.publicUrl);
+
+    alert("업로드 완료!");
 });
